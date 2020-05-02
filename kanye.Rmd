@@ -201,7 +201,7 @@ Sure enough. Good luck dancing to that!
 
 ### Valence
 
-You may have noticed that most Kanye albums have similar danceability scores; a fact which makes that audio feature less capable of answering our questions about Kanye West's musical rebirth.
+You may have noticed that most Kanye albums have similar danceability scores; a fact which makes that audio feature less capable of answering our questions about Kanye West's musical evolution.
 
 A more illuminating feature is that of *valence*, defined by Spotify as "a measure used by Spotify to determine the 'musical positiveness conveyed by a track.' Tracks with high valence sound more positive (e.g. happy, cheerful, euphoric), while tracks with low valence sound more negative (e.g. sad, depressed, angry)."
 
@@ -286,7 +286,7 @@ hchart(plot_df, type = "bar", hcaes(x = album_name, y = valence)) %>%
   hc_yAxis(title = list(text = "Valence"))
 ```
 
-And finally, the most complete way to visualize these trends over time, with the addition of song-level data:
+And finally, let's order the albums by year of release. That way, we're able to track how Kanye's musical mood has changed over time.
 
 ```{r}
 plot_df <- song_data %>%
@@ -336,27 +336,34 @@ Following his 2007 album *Graduation*, Kanye West's music became considerably da
 
 <div class = "center"><iframe width="560" height="315" src="https://www.youtube.com/embed/UIfyvZDrcwA" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
 
-It was in the aftermath of events such as these that Kanye spiralled into a deep depression. In his own words:
+It was in the aftermath of events such as these that Kanye spiralled into depression and contemplated suicide. In his own words:
 
 <div class = 'center'><blockquote class='rg_standalone_container' data-src='//genius.com/annotations/1048197/standalone_embed'><a href='https://genius.com/1048197/Kanye-west-jay-z-and-big-sean-clique/Went-through-deep-depression-when-my-mama-passed-suicide-what-kinda-talk-is-that'>Went through, deep depression when my mama passed <br> Suicide, what kinda talk is that?</a><br><a href='https://genius.com/Kanye-west-jay-z-and-big-sean-clique-lyrics'>&#8213; Kanye West – Clique</a></blockquote></div>
 
-That explains why Kanye West's discography up until Graduation has an average valence score of `r song_data %>% filter(album_release_year < 2008) %>% summarise(round(mean(valence),2))`, and those albums released *after* Graduation have an average valence score of `r song_data %>% filter(album_release_year > 2007) %>% summarise(round(mean(valence),2))`.
+That explains why Kanye West's discography up until Graduation has an average valence score of `r song_data %>% filter(album_release_year < 2008) %>% summarise(round(mean(valence),2))`, and those albums released *after* Graduation have an average valence score of `r song_data %>% filter(album_release_year > 2007) %>% summarise(round(mean(valence),2))`. Kanye himself has [said](https://www.independent.co.uk/arts-entertainment/music/news/kanye-west-alcoholic-addiction-vodka-trump-interview-a9467531.html) that it was during these years, up until very recently, that he struggled with depression, bipolar disorder, alcohol and drugs.
 
 ---
 
 ## The Jesus is King Effect
 
-Most recently, Kanye West went through a self-described spiritual and political transformation. Starting in 2019, it became apparent that Kanye was definitely not his old self, from becoming a born-again Christian to dabbling in the political arena. 
+But as recently as 2018, Kanye West went through a self-described spiritual and political transformation. Last year, it became apparent that Kanye was definitely not his old self, from becoming a born-again Christian to dabbling in the political arena. 
 
 <div class = 'center'>
-  <img src = 'images/tweet.jpg' width = '500'>
+  <a href = "https://twitter.com/kanyewest/status/1080199325295071233?lang=en" 
+     target = "_blank">
+     <img src = 'images/tweet.jpg' width = '500'>
+  </a>
 </div>
 
 It was during this time that Kanye came out with his arguably most unique album yet: *Jesus Is King*. 
 
+<div class = 'center'>
+  <iframe src="https://open.spotify.com/embed/album/0FgZKfoU2Br5sHOfvZKTI9" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+</div>
+
 Jesus Is King (stylized JESUS IS KING) was released on October 25, 2019 in collaboration with West's newly formed gospel group the [Sunday Service Choir](https://en.wikipedia.org/wiki/Sunday_Service_Choir). When asked about the album and its purpose, Kanye [replied](https://www.nytimes.com/2019/09/30/arts/music/kanye-west-jesus-is-king.html):
 
-> This album has been made to be an expression of the gospel and to share the gospel and the truth of what Jesus has done to me. When I think of the goodness of Jesus and all that he does for me, my soul cries out.
+<blockquote>This album has been made to be an expression of the gospel and to share the gospel and the truth of what Jesus has done to me. When I think of the goodness of Jesus and all that he does for me, my soul cries out.</blockquote>
 
 The question hasn't yet been answered: is Kanye in a new era of music? Does the release of *Jesus is King* represent a new era in Kanye's discography, akin to the post-Graduation Kanye but in the opposite direction?
 

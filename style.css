@@ -129,6 +129,10 @@ body .inner-content {
 	width: 225px;
 }
 
+blockquote {
+  margin: 2% 15% 2% 15%;
+}
+
 .tvpng {
 	position: absolute;
 }
