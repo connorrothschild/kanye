@@ -35,63 +35,55 @@ library(spotifyr)
 library(tidyverse)
 library(RColorBrewer)
 library(highcharter)
+library(htmltools)
 
-# input ids here
-keys <- yaml::read_yaml("keys.yaml")
-Sys.setenv(SPOTIFY_CLIENT_ID = keys$client_id)
-Sys.setenv(SPOTIFY_CLIENT_SECRET = keys$client_secret)
+# # input ids here
+# keys <- yaml::read_yaml("keys.yaml")
+# Sys.setenv(SPOTIFY_CLIENT_ID = keys$client_id)
+# Sys.setenv(SPOTIFY_CLIENT_SECRET = keys$client_secret)
+# 
+# access_token <- get_spotify_access_token()
+# 
+# kanye <- get_artist_audio_features('kanye west')
+# 
+# song_data <- kanye %>% 
+#   select(album_release_year, album_images, danceability:tempo, duration_ms, explicit,
+#          track_name, external_urls.spotify, album_name:key_mode)
+# 
+# ### unlist albums and only return one
+# 
+# for (row in 1:nrow(song_data)) {
+#   song_data$album_images[[row]] <- song_data$album_images[[row]][['url']][[2]]
+# }
+# 
+# song_data$album_images <- unlist(song_data$album_images)
+# 
+# ## a couple of duplicated album images, unsure why
+# song_data <- song_data %>% 
+#   mutate(album_images = ifelse(album_name == "My Beautiful Dark Twisted Fantasy",
+#                           "https://i.scdn.co/image/ab67616d00001e025bd363295a677dacd0b4187b",
+#                           album_images),
+#          album_images = ifelse(album_name == "Late Registration",
+#                           "https://i.scdn.co/image/ab67616d00001e02de720f487ec5a6a3cfad9ebb",
+#                           album_images),
+#          album_images = ifelse(album_name == "808s & Heartbreak",
+#                           "https://i.scdn.co/image/ab67616d00001e0265fbf56c2837be4879b5020a",
+#                           album_images)) 
+# 
+# song_data <- song_data %>% 
+#   mutate(album_name = ifelse(album_name == "Kanye West Presents Good Music Cruel Summer", "Good Music Cruel Summer", album_name),
+#          album_name = ifelse(album_name == "My Beautiful Dark Twisted Fantasy", "MBDTF", album_name),
+#          track_name = str_replace(track_name, "- Album Version *|\\(Interlude\\)|- Bonus Track|- Live At Abbey Road Studios", ""),
+#          track_name = gsub("(Edited)", "", track_name, fixed = TRUE),
+#          track_name = str_trim(track_name)) %>% 
+#   filter(track_name != str_detect(track_name, "Skit*"),
+#          album_name != "Graduation (Alternative Business Partners)") %>% 
+#   distinct(track_name, .keep_all = TRUE)
+# 
+# write.csv(song_data, "data/song_data.csv")
 
-access_token <- get_spotify_access_token()
-
-kanye <- get_artist_audio_features('kanye west')
-
-song_data <- kanye %>% 
-  select(album_release_year, album_images, danceability:tempo, duration_ms, explicit,
-         track_name, external_urls.spotify, album_name:key_mode)
-
-### unlist albums and only return one
-
-for (row in 1:nrow(song_data)) {
-  song_data$album_images[[row]] <- song_data$album_images[[row]][['url']][[2]]
-}
-
-song_data$album_images <- unlist(song_data$album_images)
-
-## a couple of duplicated album images, unsure why
-song_data <- song_data %>% 
-  mutate(album_images = ifelse(album_name == "My Beautiful Dark Twisted Fantasy",
-                          "https://i.scdn.co/image/ab67616d00001e025bd363295a677dacd0b4187b",
-                          album_images),
-         album_images = ifelse(album_name == "Late Registration",
-                          "https://i.scdn.co/image/ab67616d00001e02de720f487ec5a6a3cfad9ebb",
-                          album_images),
-         album_images = ifelse(album_name == "808s & Heartbreak",
-                          "https://i.scdn.co/image/ab67616d00001e0265fbf56c2837be4879b5020a",
-                          album_images)) 
-
-song_data <- song_data %>% 
-  mutate(album_name = ifelse(album_name == "Kanye West Presents Good Music Cruel Summer", "Good Music Cruel Summer", album_name),
-         album_name = ifelse(album_name == "My Beautiful Dark Twisted Fantasy", "MBDTF", album_name),
-         track_name = str_replace(track_name, "- Album Version *|\\(Interlude\\)|- Bonus Track|- Live At Abbey Road Studios", ""),
-         track_name = gsub("(Edited)", "", track_name, fixed = TRUE),
-         track_name = str_trim(track_name)) %>% 
-  filter(track_name != str_detect(track_name, "Skit*"),
-         album_name != "Graduation (Alternative Business Partners)") %>% 
-  distinct(track_name, .keep_all = TRUE)
-
-# write.csv(song_data, "../data/song_data.csv")
-
-grouped <- song_data %>% 
-  group_by(album_name) %>% 
-  summarise_at(vars(danceability:tempo), mean) 
-
-grouped <- grouped %>% 
-  filter(album_name != "Graduation (Alternative Business Partners)" & album_name != "Late Orchestration") %>% 
-  mutate(album_name = ifelse(album_name == "Kanye West Presents Good Music Cruel Summer", "Good Music Cruel Summer", album_name))
-
-# write.csv(grouped, "../data/kanye_data.csv")
-
-# lyrics <- get_album_data("Kanye West", "JESUS IS KING")
+### FOR USERS WITHOUT SPOTIFY KEYS:
+song_data <- readr::read_csv("data/song_data.csv")
 ```
 
 ```{r, include = FALSE}
@@ -110,7 +102,8 @@ theme_set(theme_minimal())
 ```
 
 ```{r}
-HTML('<div id="intro">
+HTML(
+  '<div id="intro">
 				<div class="tv">
 					<img class="rotate-head" src="images/kanye.png" width="225">
 				</div>
@@ -118,7 +111,7 @@ HTML('<div id="intro">
 					<p class="small">The birth, death, and rebirth of</p>
 					<p class="large black-red-text">KANYE</p>
 					<p class="large black-red-text">WEST</p>
-					
+
 				</div>
 				<div class="byline-div">
 					<p class="byline">By <span class="bold">Connor Rothschild</span></p>
@@ -126,21 +119,22 @@ HTML('<div id="intro">
 				</div>
 				<div class="lede-div">
 		  <p class="prose" id="firstp">
-			Kanye West is an international phenomemon. 
-			The musical artist has sold over 140 million records worldwide and has 
-			<a href = "https://guardian.ng/life/kanye-west-buys-14-million-wyoming-ranch/" 
-			target = "_blank">received</a> 
+			Kanye West is an international phenomemon.
+			The musical artist has sold over 140 million records worldwide and has
+			<a href = "https://guardian.ng/life/kanye-west-buys-14-million-wyoming-ranch/"
+			target = "_blank">received</a>
 			21 Grammy Awards.',
-			"<br><br>Part of Kanye West's appeal is his musical variety. 
+  "<br><br>Part of Kanye West's appeal is his musical variety.
 			His discography has been inspired by classic hip-hop as well as dubstep.
-			<br><br>Fans of Kanye West will know that, 
-			as often as his musical tenor has changed, so too has his persona. 
+			<br><br>Fans of Kanye West will know that,
+			as often as his musical tenor has changed, so too has his persona.
 			<br><br>The 'Kanye' story is one of growth, struggle, triumph, and confusion.
-			<br>This project hopes to demystify some of Kanye West's 
+			<br>This project hopes to demystify some of Kanye West's
 			evolution by exploring how, in specific, his <em>music</em> has changed over time.
 			By analyzing audio features from Spotify, we're able to track
 			the birth, death, and rebirth of Kanye West.
-			</div></div>")
+			</div></div>"
+)
 ```
 
 <!-- ## Spotify Audio Features -->
@@ -157,39 +151,55 @@ For each audio feature (such as acousticness), every song on Spotify is given a 
 
 As an example, let's look at the danceability of each song in Kanye West's collection.
 
-```{r, echo=FALSE, warning=FALSE}
+```{r}
 plot_danceability <- song_data %>%
   mutate(album_name = reorder(album_name, danceability)) %>%
-  ggplot(aes(x = danceability, y = album_name)) + 
-  geom_quasirandom(mapping = aes(colour = danceability,
-                              text = glue::glue(
-                                '<span style = "font-size:1.2em">{track_name}</span><br>
-                                                    Danceability: {danceability}'
-                              )), 
-                groupOnX = FALSE, size = 3, alpha = .6) +
-  scale_color_viridis_c(direction = -1) +
-  stat_summary(fun = mean, fun.min = mean, fun.max = mean,
-               geom = "crossbar", width = .75, inherit.aes = TRUE) +
-  theme(
-    legend.position = 'none'
+  ggplot(aes(x = danceability, y = album_name)) +
+  geom_quasirandom(
+    mapping = aes(
+      colour = danceability,
+      text = paste0(
+        '<b>Song:</b> ',
+        track_name,
+        '<br><b>Album:</b> ',
+        album_name,
+        '<br><b>Average Danceability</b>: ',
+        round(danceability, 2),
+        '<br><b>Year Released</b>: ',
+        album_release_year,
+        '</a>'
+      )
+    ),
+    groupOnX = FALSE,
+    size = 3,
+    alpha = .6
   ) +
+  scale_color_viridis_c(direction = -1) +
+  stat_summary(
+    fun = mean,
+    fun.min = mean,
+    fun.max = mean,
+    geom = "crossbar",
+    width = .75,
+    inherit.aes = TRUE
+  ) +
+  theme(legend.position = 'none') +
   labs(x = 'Danceability',
        y = '')
 
-div(class = 'center',
-ggplotly(plot_danceability, tooltip = 'text') %>%
-  layout(
-    title = list(element_blank()),
-    # legend = list(x = 0.65, y = 0.925),
-    font = list(family = 'Lato'),
-    # margin = list(t = 50),
-    hoverlabel = list(bgcolor = 'whitesmoke', color = 'darkGray')
-  ) %>%
-  config(
-    displaylogo = F,
-    showSendToCloud = F,
-    displayModeBar = F
-  )
+div(
+  class = 'center',
+  ggplotly(plot_danceability, tooltip = 'text') %>%
+    layout(
+      title = list(element_blank()),
+      font = list(family = 'Lato'),
+      hoverlabel = list(bgcolor = 'whitesmoke', color = 'darkGray')
+    ) %>%
+    config(
+      displaylogo = F,
+      showSendToCloud = F,
+      displayModeBar = F
+    )
 )
 ```
 
@@ -205,22 +215,39 @@ You may have noticed that most Kanye albums have similar danceability scores; a 
 
 A more illuminating feature is that of *valence*, defined by Spotify as "a measure used by Spotify to determine the 'musical positiveness conveyed by a track.' Tracks with high valence sound more positive (e.g. happy, cheerful, euphoric), while tracks with low valence sound more negative (e.g. sad, depressed, angry)."
 
-```{r, echo = FALSE}
+```{r}
 plot_valence <- song_data %>%
   mutate(album_name = reorder(album_name, valence)) %>%
-  ggplot(aes(x = valence, y = album_name)) + 
-  geom_quasirandom(mapping = aes(colour = valence,
-                              text = glue::glue(
-                                '<span style = "font-size:1.2em">{track_name}</span><br>
-                                                    Valence: {valence}'
-                              )), 
-                groupOnX = FALSE, size = 3, alpha = .6) +
-  scale_color_viridis_c(direction = -1) +
-  stat_summary(fun = mean, fun.min = mean, fun.max = mean,
-               geom = "crossbar", width = .75, inherit.aes = TRUE) +
-  theme(
-    legend.position = 'none'
+  ggplot(aes(x = valence, y = album_name)) +
+  geom_quasirandom(
+    mapping = aes(
+      colour = valence,
+      text = paste0(
+        '<b>Song:</b> ',
+        track_name,
+        '<br><b>Album:</b> ',
+        album_name,
+        '<br><b>Average Valence</b>: ',
+        round(valence, 2),
+        '<br><b>Year Released</b>: ',
+        album_release_year,
+        '</a>'
+      )
+    ),
+    groupOnX = FALSE,
+    size = 3,
+    alpha = .6
   ) +
+  scale_color_viridis_c(direction = -1) +
+  stat_summary(
+    fun = mean,
+    fun.min = mean,
+    fun.max = mean,
+    geom = "crossbar",
+    width = .75,
+    inherit.aes = TRUE
+  ) +
+  theme(legend.position = 'none') +
   labs(x = 'Valence',
        y = '')
 
@@ -229,9 +256,7 @@ div(
   ggplotly(plot_valence, tooltip = 'text') %>%
     layout(
       title = list(element_blank()),
-      # legend = list(x = 0.65, y = 0.925),
       font = list(family = 'Lato'),
-      # margin = list(t = 50),
       hoverlabel = list(bgcolor = 'whitesmoke', color = 'darkGray')
     ) %>%
     config(
@@ -248,11 +273,10 @@ If we instead look at valence averaged across each album, we can see how the alb
 
 ```{r}
 plot_df <- song_data %>%
-  group_by(album_name, album_images, album_release_year) %>% 
-  summarise(valence = mean(valence)) %>% 
-  arrange(desc(valence)) %>% 
-  ungroup() %>% 
-  # rowwise %>%
+  group_by(album_name, album_images, album_release_year) %>%
+  summarise(valence = mean(valence)) %>%
+  arrange(desc(valence)) %>%
+  ungroup() %>%
   mutate(
     tooltip = paste0(
       '<a style = "margin-right:',
@@ -265,12 +289,12 @@ plot_df <- song_data %>%
       album_name,
       '<br><b>Average Valence</b>: ',
       round(valence, 2),
-      '<br><b>Year released</b>: ',
+      '<br><b>Year Released</b>: ',
       album_release_year,
       '</a>'
     )
   ) %>%
-  mutate(album_name = reorder(album_name, -valence))
+  mutate(album_name = reorder(album_name,-valence))
 
 hchart(plot_df, type = "bar", hcaes(x = album_name, y = valence)) %>%
   hc_tooltip(formatter = JS(paste0(
@@ -278,9 +302,7 @@ hchart(plot_df, type = "bar", hcaes(x = album_name, y = valence)) %>%
   )),
   useHTML = T) %>%
   hc_title(text = paste0("Kanye's Valence")) %>%
-  hc_subtitle(text = paste0(
-    "Kanye West's valence by album"
-  )) %>%
+  hc_subtitle(text = paste0("Kanye West's valence by album")) %>%
   hc_add_theme(hc_theme_smpl()) %>%
   hc_xAxis(title = list(text = '')) %>%
   hc_yAxis(title = list(text = "Valence"))
@@ -290,44 +312,77 @@ And finally, let's order the albums by year of release. That way, we're able to 
 
 ```{r}
 plot_df <- song_data %>%
-    # rowwise %>%
-    mutate(tooltip = paste0('<a style = "margin-right:', max(max(nchar(track_name), nchar(album_name)) * 7, 55), 'px">', # dynamic sizing
-                            '<img src=', album_images, ' height="50" 
-                            style="float:left;margin-right:5px">',
-                            '<b>Album:</b> ', album_name,
-                            '<br><b>Track:</b> ', track_name)) %>%
-    ungroup
+  mutate(album_release_year =
+           ifelse(album_name == "KIDS SEE GHOSTS", 2018.5, album_release_year)) %>%
+  mutate(
+    tooltip = paste0(
+      '<a style = "margin-right:',
+      max(max(nchar(track_name), nchar(album_name)) * 7, 55),
+      'px">',
+      '<img src=',
+      album_images,
+      ' height="50" style="float:left;margin-right:5px">',
+      '<b>Album:</b> ',
+      album_name,
+      '<br><b>Track:</b> ',
+      track_name
+    )
+  ) %>%
+  ungroup
 
 avg_line <- plot_df %>%
-    group_by(album_release_year, album_name, album_images) %>%
-    summarise(avg = mean(valence)) %>%
-    ungroup %>%
-    transmute(x = as.numeric(as.factor(album_release_year)),
-              y = avg,
-              tooltip = paste0('<a style = "margin-right:', 
-                               max(nchar(album_name)) * 7, 'px">',
-                               '<img src=', album_images, ' height="50"
-                               style="float:left;margin-right:5px">',
-                               '<b>Album:</b> ', album_name,
-                               '<br><b>Average Valence</b> ', round(avg, 2),
-                               '</a>')
+  mutate(album_release_year =
+           ifelse(album_name == "KIDS SEE GHOSTS", 2018.5, album_release_year)) %>%
+  group_by(album_release_year, album_name, album_images) %>%
+  summarise(avg = mean(valence)) %>%
+  ungroup %>%
+  transmute(
+    x = as.numeric(as.factor(album_release_year)),
+    y = avg,
+    tooltip = paste0(
+      '<a style = "margin-right:',
+      max(nchar(album_name)) * 7,
+      'px">',
+      '<img src=',
+      album_images,
+      ' height="50" style="float:left;margin-right:5px">',
+      '<b>Album:</b> ',
+      album_name,
+      '<br><b>Average Valence</b> ',
+      round(avg, 2),
+      '</a>'
     )
+  )
 
 plot_track_df <- plot_df %>%
-    mutate(tooltip = paste0(tooltip, '<br><b>Valence:</b> ', valence, '</a>'),
-           album_number = as.numeric(as.factor(album_release_year))) %>%
-    ungroup
+  mutate(
+    tooltip = paste0(tooltip, '<br><b>Valence:</b> ', valence, '</a>'),
+    album_number = as.numeric(as.factor(album_release_year))
+  ) %>%
+  ungroup
 
-album_chart <- hchart(plot_track_df, 'scatter', hcaes(x = as.numeric(as.factor(album_release_year)), y = valence, group = album_name)) %>%
-    hc_add_series(data = avg_line, type = 'line') %>%
-    hc_tooltip(formatter = JS(paste0("function() {return this.point.tooltip;}")), 
-               useHTML = T) %>%
-    hc_colors(c(sample(brewer.pal(n_distinct(song_data$album_name), 'Paired')), 'black')) %>%
-    hc_xAxis(title = list(text = 'Album'), labels = list(enabled = F)) %>%
-    hc_yAxis(max = 1, title = list(text = 'Valence')) %>%
-    hc_title(text = "Kanye's Mood") %>%
-    hc_subtitle(text = "Kanye West's song sadness (valence) by album") %>%
-    hc_add_theme(hc_theme_smpl())
+album_chart <-
+  hchart(plot_track_df,
+         'scatter',
+         hcaes(
+           x = as.numeric(as.factor(album_release_year)),
+           y = valence,
+           group = album_name
+         )) %>%
+  hc_add_series(data = avg_line, type = 'line') %>%
+  hc_tooltip(formatter = JS(paste0(
+    "function() {return this.point.tooltip;}"
+  )),
+  useHTML = T) %>%
+  hc_colors(c(sample(brewer.pal(
+    n_distinct(song_data$album_name), 'Paired'
+  )), 'black')) %>%
+  hc_xAxis(title = list(text = 'Album'),
+           labels = list(enabled = F)) %>%
+  hc_yAxis(max = 1, title = list(text = 'Valence')) %>%
+  hc_title(text = "Kanye's Mood") %>%
+  hc_subtitle(text = "Kanye West's song sadness (valence) by album") %>%
+  hc_add_theme(hc_theme_smpl())
 album_chart$x$hc_opts$series[[13]]$name <- 'Album Averages'
 album_chart
 ```
@@ -344,7 +399,7 @@ That explains why Kanye West's discography up until Graduation has an average va
 
 ---
 
-## The Jesus is King Effect
+## The Jesus Is King Effect
 
 But as recently as 2018, Kanye West went through a self-described spiritual and political transformation. Last year, it became apparent that Kanye was definitely not his old self, from becoming a born-again Christian to dabbling in the political arena. 
 
@@ -369,124 +424,161 @@ The question hasn't yet been answered: is Kanye in a new era of music? Does the 
 
 I'll leave the definitive answer to this question unresolved, particularly because we are yet to see how Kanye's music will continue to differ after *Jesus Is King*.
 
-But here, you can explore each of Spotify's seven audio features to answer the question: how does Kanye West's most recent album compare to his previous ones? Aside from his spiritual transformation, has he been musically born again? 
+But here, you can explore each of Spotify's audio features to answer the question: how does Kanye West's most recent album compare to his previous ones? Aside from his spiritual transformation, has he been musically born again? 
 
-```{r, fig.align='center'}
+```{r}
 library(shiny)
 
 features_options <-
-  c("Danceability", "Tempo", "Energy", "Loudness", "Mode", "Speechiness",
-    "Acousticness", "Liveness", "Valence", "Duration (ms)")
+  c(
+    "Danceability",
+    "Tempo",
+    "Energy",
+    "Loudness",
+    "Mode",
+    "Speechiness",
+    "Acousticness",
+    "Liveness",
+    "Valence",
+    "Duration (ms)"
+  )
 
-selectInput("feature_selected", label = "Audio Feature",
-            choices = features_options,
-            selected = features_options[1]
-            )
+selectInput(
+  "feature_selected",
+  label = "Audio Feature",
+  choices = features_options,
+  selected = features_options[1]
+)
 ```
 
 ```{r}
 renderHighchart({
-  
   get_feature_column <- function(song_data, name) {
     if (name == "Danceability") {
-      data_filtered <- song_data %>% 
-        group_by(album_name) %>% 
-        summarise(feature = mean(danceability)) %>% 
-        arrange(desc(feature)) %>% 
+      data_filtered <- song_data %>%
+        group_by(album_name) %>%
+        summarise(feature = mean(danceability)) %>%
+        arrange(desc(feature)) %>%
         ungroup()
     } else if (name == "Tempo") {
-      data_filtered <- song_data %>% 
-        group_by(album_name) %>% 
-        summarise(feature = mean(tempo)) %>% 
-        arrange(desc(feature)) %>% 
+      data_filtered <- song_data %>%
+        group_by(album_name) %>%
+        summarise(feature = mean(tempo)) %>%
+        arrange(desc(feature)) %>%
         ungroup()
     } else if (name == "Energy") {
-      data_filtered <- song_data %>% 
-        group_by(album_name) %>% 
-        summarise(feature = mean(energy)) %>% 
-        arrange(desc(feature)) %>% 
+      data_filtered <- song_data %>%
+        group_by(album_name) %>%
+        summarise(feature = mean(energy)) %>%
+        arrange(desc(feature)) %>%
         ungroup()
     } else if (name == "Loudness") {
-      data_filtered <- song_data %>% 
-        group_by(album_name) %>% 
-        summarise(feature = mean(loudness)) %>% 
-        arrange(desc(feature)) %>% 
+      data_filtered <- song_data %>%
+        group_by(album_name) %>%
+        summarise(feature = mean(loudness)) %>%
+        arrange(desc(feature)) %>%
         ungroup()
     } else if (name == "Mode") {
-      data_filtered <- song_data %>% 
-        group_by(album_name) %>% 
-        summarise(feature = mean(mode)) %>% 
-        arrange(desc(feature)) %>% 
+      data_filtered <- song_data %>%
+        group_by(album_name) %>%
+        summarise(feature = mean(mode)) %>%
+        arrange(desc(feature)) %>%
         ungroup()
     } else if (name == "Speechiness") {
-      data_filtered <- song_data %>% 
-        group_by(album_name) %>% 
-        summarise(feature = mean(speechiness)) %>% 
-        arrange(desc(feature)) %>% 
+      data_filtered <- song_data %>%
+        group_by(album_name) %>%
+        summarise(feature = mean(speechiness)) %>%
+        arrange(desc(feature)) %>%
         ungroup()
     } else if (name == "Acousticness") {
-      data_filtered <- song_data %>% 
-        group_by(album_name) %>% 
-        summarise(feature = mean(acousticness)) %>% 
-        arrange(desc(feature)) %>% 
+      data_filtered <- song_data %>%
+        group_by(album_name) %>%
+        summarise(feature = mean(acousticness)) %>%
+        arrange(desc(feature)) %>%
         ungroup()
     } else if (name == "Liveness") {
-      data_filtered <- song_data %>% 
-        group_by(album_name) %>% 
-        summarise(feature = mean(liveness)) %>% 
-        arrange(desc(feature)) %>% 
+      data_filtered <- song_data %>%
+        group_by(album_name) %>%
+        summarise(feature = mean(liveness)) %>%
+        arrange(desc(feature)) %>%
         ungroup()
     } else if (name == "Valence") {
-      data_filtered <- song_data %>% 
-        group_by(album_name) %>% 
-        summarise(feature = mean(valence)) %>% 
-        arrange(desc(feature)) %>% 
+      data_filtered <- song_data %>%
+        group_by(album_name) %>%
+        summarise(feature = mean(valence)) %>%
+        arrange(desc(feature)) %>%
         ungroup()
     } else if (name == "Duration (ms)") {
-      data_filtered <- song_data %>% 
-        group_by(album_name) %>% 
-        summarise(feature = mean(duration_ms)) %>% 
-        arrange(desc(feature)) %>% 
+      data_filtered <- song_data %>%
+        group_by(album_name) %>%
+        summarise(feature = mean(duration_ms)) %>%
+        arrange(desc(feature)) %>%
         ungroup()
     }
     
     
   }
   
-  data_filtered <- get_feature_column(song_data, input$feature_selected)
-  #data_filtered <- get_feature_column(song_data, "Danceability")
+  data_filtered <-
+    get_feature_column(song_data, input$feature_selected)
   
-  images_and_years <- song_data %>% 
-    select(album_name, album_images, album_release_year) %>% 
+  images_and_years <- song_data %>%
+    select(album_name, album_images, album_release_year) %>%
     distinct()
   
-  data_filtered <- left_join(data_filtered, images_and_years, by = "album_name")
-
+  data_filtered <-
+    left_join(data_filtered, images_and_years, by = "album_name")
+  
   cols <- c('black', 'white')
   
   plot_df <- data_filtered %>%
-    # rowwise %>%
-    mutate(tooltip = paste0('<a style = "margin-right:', 
-                            max(nchar(album_name)) + 70, 'px">', # dynamic sizing
-                            '<img src=', album_images, ' height="50" 
+    mutate(
+      tooltip = paste0(
+        '<a style = "margin-right:',
+        max(nchar(album_name)) + 70,
+        'px">',
+        '<img src=',
+        album_images,
+        ' height="50"
                             style="float:left;margin-right:5px">',
-                            '<b>Album:</b> ', album_name,
-                            '<br><b>Average ', input$feature_selected, '</b>: ',
-                            round(feature, 2),
-                               '</a>')) %>%
-    mutate(album_name = reorder(album_name, -feature),
-           is_JIK = ifelse(album_name == "JESUS IS KING", "1", "0"))
+        '<b>Album:</b> ',
+        album_name,
+        '<br><b>Year Released:</b> ',
+        album_release_year,
+        '<br><b>Average ',
+        input$feature_selected,
+        '</b>: ',
+        round(feature, 2),
+        '</a>'
+      )
+    ) %>%
+    mutate(
+      album_name = reorder(album_name,-feature),
+      is_JIK = ifelse(album_name == "JESUS IS KING", "1", "0")
+    )
   
-  hchart(plot_df, type = "bar", hcaes(x = album_name, y = feature, color = is_JIK)) %>% 
-    hc_colors(cols) %>% 
-    hc_tooltip(formatter = JS(paste0("function() {return this.point.tooltip;}")),
-               useHTML = T) %>%
+  hchart(plot_df, type = "bar", hcaes(x = album_name, y = feature, color = is_JIK)) %>%
+    hc_colors(cols) %>%
+    hc_tooltip(formatter = JS(paste0(
+      "function() {return this.point.tooltip;}"
+    )),
+    useHTML = T) %>%
     hc_title(text = paste0("Kanye's ", input$feature_selected)) %>%
-    hc_subtitle(text = paste0("Kanye West's ", 
-                              stringr::str_to_lower(input$feature_selected), 
-                              " by album")) %>%
-    hc_add_theme(hc_theme_smpl()) %>% 
+    hc_subtitle(text = paste0(
+      "Kanye West's ",
+      stringr::str_to_lower(input$feature_selected),
+      " by album"
+    )) %>%
+    hc_add_theme(hc_theme_smpl()) %>%
     hc_xAxis(title = list(text = '')) %>%
     hc_yAxis(title = list(text = input$feature_selected))
 })
 ```
+
+---
+
+#### Technical Notes
+
+You can access the code for this post [here](https://github.com/connorrothschild/kanye). 
+
+Tools used include in this project include the Spotify API, and various R packages, most notably `spotifyr`, `highcharter`, `ggbeeswarm`, `plotly`, `ggplot2`, `htmltools`, and `shiny`.
